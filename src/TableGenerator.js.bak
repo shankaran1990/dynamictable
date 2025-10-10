@@ -1,0 +1,93 @@
+// src/TableGenerator.js
+import React, { useState } from 'react';
+
+const TableGenerator = () => {
+  const [numTables, setNumTables] = useState(1);
+  const [tables, setTables] = useState([]);
+
+  const initializeTables = () => {
+    const newTables = Array.from({ length: numTables }, () => ({
+      rows: 2,
+      cols: 2,
+      headers: Array(2).fill(''),
+      data: Array(2).fill().map(() => Array(2).fill('')),
+    }));
+    setTables(newTables);
+  };
+
+  const updateHeader = (tableIndex, colIndex, value) => {
+    const updated = [...tables];
+    updated[tableIndex].headers[colIndex] = value;
+    setTables(updated);
+  };
+
+  const updateCell = (tableIndex, rowIndex, colIndex, value) => {
+    const updated = [...tables];
+    updated[tableIndex].data[rowIndex][colIndex] = value;
+    setTables(updated);
+  };
+
+  const exportJSON = () => {
+    const output = tables.map((table) => ({
+      headers: table.headers,
+      rows: table.data,
+    }));
+    console.log(JSON.stringify(output, null, 2));
+    alert('Check the console for exported JSON!');
+  };
+
+  return (
+    <div>
+      <h2>Dynamic Table Generator</h2>
+      <label>Number of Tables: </label>
+      <input
+        type="number"
+        value={numTables}
+        onChange={(e) => setNumTables(Number(e.target.value))}
+      />
+      <button onClick={initializeTables}>Create Tables</button>
+
+      {tables.map((table, tIndex) => (
+        <div key={tIndex} style={{ marginTop: '20px' }}>
+          <h3>Table {tIndex + 1}</h3>
+          <table border="1">
+            <thead>
+              <tr>
+                {table.headers.map((header, cIndex) => (
+                  <th key={cIndex}>
+                    <input
+                      value={header}
+                      onChange={(e) => updateHeader(tIndex, cIndex, e.target.value)}
+                    />
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {table.data.map((row, rIndex) => (
+                <tr key={rIndex}>
+                  {row.map((cell, cIndex) => (
+                    <td key={cIndex}>
+                      <input
+                        value={cell}
+                        onChange={(e) =>
+                          updateCell(tIndex, rIndex, cIndex, e.target.value)
+                        }
+                      />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ))}
+
+      <button style={{ marginTop: '20px' }} onClick={exportJSON}>
+        Export as JSON
+      </button>
+    </div>
+  );
+};
+
+export default TableGenerator;
