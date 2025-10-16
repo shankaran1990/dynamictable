@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
 const TableManager = () => {
   const [tableConfigs, setTableConfigs] = useState([]);
   const [numTables, setNumTables] = useState(1);
+  const [exportedJSON, setExportedJSON] = useState(null);
+  const jsonRef = useRef(null);
 
   const initializeTables = () => {
     const configs = Array.from({ length: numTables }, () => ({
@@ -68,13 +70,20 @@ const TableManager = () => {
 
   const exportJSON = () => {
     const output = tableConfigs.map((table) => ({
+      rows: table.rows,
+      columns: table.cols,
       headers: table.headers,
-      rows: table.data.map((row) =>
+      data: table.data.map((row) =>
         row.map((cell) => [...cell])
       ),
     }));
-    console.log(JSON.stringify(output, null, 2));
-    alert('Exported to console!');
+    setExportedJSON(output);
+
+    setTimeout(() => {
+      if (jsonRef.current) {
+        jsonRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
   };
 
   return (
@@ -174,6 +183,15 @@ const TableManager = () => {
       <button onClick={exportJSON} style={{ padding: '10px 20px', fontSize: '16px' }}>
         🚀 Export All Tables as JSON
       </button>
+
+      {exportedJSON && (
+        <div ref={jsonRef} style={{ marginTop: '30px' }}>
+          <h3>📦 Exported JSON Output</h3>
+          <pre style={{ background: '#f4f4f4', padding: '10px', borderRadius: '5px', maxHeight: '400px', overflow: 'auto' }}>
+            {JSON.stringify(exportedJSON, null, 2)}
+          </pre>
+        </div>
+      )}
     </div>
   );
 };
